@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>贪吃蛇小游戏</title>
+    <style type="text/css">
+        body {
+            margin: 0px;
+            padding: 0px;
+            background-color: #55D85B;
+        }
+
+        #main {
+            width: 600px;
+            height: 630px;
+            background-color: #F4DC90;
+            margin: 0px auto;
+        }
+
+        #box {
+            width: 480px;
+            height: 460px;
+            background-color: #F8D668;
+            position: relative;
+            left: 60px;
+            top: 10px;
+        }
+
+        .snake {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            background: url(images/snake3.png);
+        }
+
+        .food {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            background: url(images/snake4.gif) #50860E;
+        }
+
+        #rule {
+            font-size: 20px;
+            width: 500px;
+            height: 50px;
+            line-height: 50px;
+            float: left;
+            margin-top: 10px;
+            margin-left: 18px;
+        }
+
+        #left {
+            font-size: 24px;
+            line-height: 33px;
+            text-align: center;
+            width: 150px;
+            background-color: #BBAF9A;
+            float: left;
+            margin-left: 18px;
+            margin-top: 10px;
+        }
+
+        #center {
+            width: 125px;
+            margin-top: 10px;
+            float: left;
+            margin-left: 43px;
+        }
+
+        #right {
+            font-size: 24px;
+            line-height: 33px;
+            text-align: center;
+            float: right;
+            width: 150px;
+            background-color: #BBAF9A;
+            margin-left: 10px;
+            margin-top: 8px;
+        }
+
+        #footer {
+            width: 500px;
+            height: 170px;
+        }
+
+        #h-down, #t-down {
+            transform: rotate(90deg);
+            -ms-transform: rotate(90deg); /* IE 9 */
+            -webkit-transform: rotate(90deg); /* Safari and Chrome */
+            -o-transform: rotate(90deg); /* Opera */
+            -moz-transform: rotate(90deg); /* Firefox */
+        }
+
+        #h-up, #t-up {
+            transform: rotate(-90deg);
+            -ms-transform: rotate(-90deg); /* IE 9 */
+            -webkit-transform: rotate(-90deg); /* Safari and Chrome */
+            -o-transform: rotate(-90deg); /* Opera */
+            -moz-transform: rotate(- 90deg); /* Firefox */
+        }
+
+        #h-left, #t-left {
+            transform: rotate(180deg);
+            -ms-transform: rotate(180deg); /* IE 9 */
+            -webkit-transform: rotate(180deg); /* Safari and Chrome */
+            -o-transform: rotate(180deg); /* Opera */
+            -moz-transform: rotate(180deg); /* Firefox */
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css" type="text/css"/>
+    <script type="text/javascript">
+        var oBox = null;//蛇所在的方格
+        var aSnaker = null;//所有蛇的节 数组
+        var oFood = null;//食物对象
+        var moveDir = null;//移动的方向
+        var clear = null;//蛇动的setTimeout返回值
+        var fLeft;//食物的位置
+        var fTop;
+        var score;//分数
+        var hightScore;//最高分数
+        var oScore;//分数所在的对象里
+        var oHightScore;//最高分数所在的对象里
+        var canChangeDir;
+        window.onload = init;
+        function init() {
+            canChangeDir=false;
+            hightScore = 0
+            oScore = document.getElementById('left');
+            oHightScore = document.getElementById('right');
+            playGame();
+        }
+        function playGame() {
+            score = 0;
+            aSnaker = new Array();
+            moveDir = "right";
+            document.getElementById('newGame').onclick = function () {
+                document.getElementById('playGame').value = "开始游戏";
+                reStart();
+            };
+            document.getElementById('playGame').onclick = function () {
+                if (this.value == "暂停游戏") {
+                    canChangeDir = false;
+                    clearTimeout(clear);
+                    this.value = "开始游戏";
+                }
+                else {
+                    canChangeDir = true;
+                    clear = setTimeout("move()", 400);
+                    this.value = "暂停游戏";
+                }
+            }
+            document.onkeydown = function (e) {//设置转向
+                var oE = e || event;
+                if(canChangeDir==true){
+                    switch (oE.keyCode) {
+                        case 37:
+                            if (moveDir != "right") {
+                                moveDir = "left";
+                            }
+                            break;
+                        case 38:
+                            if (moveDir != "down") {
+                                moveDir = "up";
+                            }
+                            break;
+                        case 39:
+                            if (moveDir != "left") {
+                                moveDir = "right";
+                            }
+                            break;
+                        case 40:
+                            if (moveDir != "up") {
+                                moveDir = "down";
+                            }
+                            break;
+                    }
+                    canChangeDir = false;
+                }
+            }
+            oBox = document.getElementById('box');
+            createSnake();
+            createFood();
+        }
+        function createSnake() {//创建蛇
+            for (var i = 3; i > 0; i--) {
+                var oDiv = document.createElement('div');
+                oDiv.style.left = i * 20 + 'px';
+                oDiv.style.top = '60px';
+                oDiv.className = "snake";
+                if (i == 3)
+                    oDiv.style.background = "url(images/snake1.png)";
+                else if (i == 2)
+                    oDiv.style.background = "url(images/snake3.png)";
+                else
+                    oDiv.style.background = "url(images/snake2.png)";
+                aSnaker.push(oDiv);
+                oBox.appendChild(oDiv);
+            }
+        }
+        function createFood() {//创建食物对象
+            var flag = false;
+            do {
+                fLeft = Math.floor(Math.random() * 24) * 20 + 'px';
+                fTop = Math.floor(Math.random() * 23) * 20 + 'px';
+                for (var i = 0; i < aSnaker.length; i++) {
+                    if ((aSnaker[i].style.left == fLeft) && (aSnaker[i].style.top == fTop)) {
+                        flag = true;
+                        break;
+                    }
+                }
+            } while (flag)
+            oFood = document.createElement('div');
+            oFood.style.left = fLeft;
+            oFood.style.top = fTop;
+            oFood.className = 'food';
+            oBox.appendChild(oFood);
+        }
+        function move() {//蛇移动
+            canChangeDir = true;
+            for (var i = aSnaker.length - 1; i > 0; i--) {
+                aSnaker[i].style.left = aSnaker[i - 1].style.left;
+                aSnaker[i].style.top = aSnaker[i - 1].style.top;
+            }
+            var snakeHead = aSnaker[0];
+            var headLeft = parseInt(snakeHead.style.left);
+            var headTop = parseInt(snakeHead.style.top);
+            switch (moveDir) {
+                case "left":
+                    headLeft -= 20;
+                    snakeHead.id = "t-left";
+                    break;
+                case "right":
+                    headLeft += 20;
+                    snakeHead.id = "";
+                    break;
+                case "up":
+                    headTop -= 20;
+                    snakeHead.id = "t-up";
+                    break;
+                case "down":
+                    headTop += 20;
+                    snakeHead.id = "t-down";
+                    break;
+            }
+            snakeHead.style.left = headLeft + 'px';
+            snakeHead.style.top = headTop + 'px';
+            check();
+            eatFood();
+            clear = setTimeout("move()", 400);
+            var snakeTail = aSnaker[aSnaker.length - 1];//获取当前的尾巴
+            //尾巴的转向，根据前一个的位置设置方向
+            if (snakeTail.style.top < aSnaker[aSnaker.length - 2].style.top)
+                snakeTail.id = "t-down";
+            else if (snakeTail.style.top > aSnaker[aSnaker.length - 2].style.top)
+                snakeTail.id = "t-up";
+
+            if (snakeTail.style.left > aSnaker[aSnaker.length - 2].style.left)
+                snakeTail.id = "t-left";
+            else if (snakeTail.style.left < aSnaker[aSnaker.length - 2].style.left)
+                snakeTail.id = "";
+        }
+        function eatFood() {//吃食物
+            if (fLeft == aSnaker[0].style.left && fTop == aSnaker[0].style.top) {
+                addDiv(aSnaker[1].style.left, aSnaker[1].style.left);
+                oFood.parentNode.removeChild(oFood);
+                score += 10;
+                oScore.innerHTML = "得分" + score;
+                if (hightScore < score) {
+                    hightScore = score;
+                    oHightScore.innerHTML = "最高分" + hightScore;
+                }
+                createFood();
+            }
+        }
+        function addDiv() {//增加一节
+            var oDiv = document.createElement("div");
+            oBox.appendChild(oDiv);
+            oDiv.className = "snake";
+            oDiv.style.left = aSnaker[aSnaker.length - 1].style.left;
+            oDiv.style.top = aSnaker[aSnaker.length - 1].style.top;
+            aSnaker.splice(aSnaker.length - 1, 0, oDiv);
+        }
+        function check() {//验证是否游戏结束
+            //和自己相撞
+            for (var i = 1; i < aSnaker.length; i++) {
+                if (aSnaker[0].style.left == aSnaker[i].style.left && aSnaker[0].style.top == aSnaker[i].style.top) {
+                    reStart();
+                }
+            }
+            //撞墙上去了
+            var headLeft = parseInt(aSnaker[0].style.left);
+            var headTop = parseInt(aSnaker[0].style.top);
+            if (headLeft < 0 || headTop < 0 || headLeft >= 480 || headTop >= 460) {
+                reStart();
+            }
+        }
+        function reStart() {//游戏失败
+            clearTimeout(clear);
+            alert("游戏结束，将重新开始，请准备");
+            score = 0;
+            oScore.innerHTML = "得分" + score;
+            for (var i = 0; i < aSnaker.length; i++) {
+                aSnaker[i].parentNode.removeChild(aSnaker[i]);
+            }
+            oFood.parentNode.removeChild(oFood);
+            playGame();
+        }
+    </script>
+    <script src="js/music.js"></script>
+</head>
+<body>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div id="main">
+        <div id="box"></div>
+        <div id="rule">请按上下左右键来控制游戏！</div>
+        <div id="footer">
+            <div id="left">
+                得分0
+            </div>
+            <div id="center">
+                <input type="button" id="newGame" value="重新开始" />
+                <input type="button" id="playGame" value="开始游戏" />
+            </div>
+            <div id="right">
+                最高分0
+            </div>
+        </div>
+    </div>
+</body>
+</html>

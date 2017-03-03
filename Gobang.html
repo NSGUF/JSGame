@@ -1,0 +1,360 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>五子棋</title>
+    <style>
+        body {
+            background: #464646;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .con {
+            width: 600px;
+            height: 554px;
+            margin: 0px auto;
+            background: #464646;
+            padding: 20px;
+        }
+
+        #footer {
+            width: 300px;
+            margin: 20px 100px;
+        }
+
+        table {
+            border-collapse: collapse;
+            border: 4px solid #895D25;
+            background: #EFCF73;
+            margin: 0px auto;
+        }
+
+        th {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #895D25;
+            cursor:pointer;
+        }
+
+        .left {
+            float: left;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .Heizi {
+            height: 50px;
+            width: 50px;
+            background: url(images/wzqb.png) no-repeat;
+        }
+
+        .Baizi {
+            height: 50px;
+            width: 50px;
+            background: url(images/wzqw.png) no-repeat;
+        }
+    </style>
+     <link rel="stylesheet" href="css/nav.css" type="text/css"/>
+    <script type="text/javascript">
+        window.onload = initAll;
+        var thObj = document.getElementsByTagName("th");        //获得对象数组
+        var sign = 1;                                           //标记是那种颜色落子,当为1时是白子下
+        var record = new Array(100);                            //记录每步落子的地方
+        var top = 0;                                            //用来记录落子的总步数
+        var win = 0;                                            //标记是否为赢，为1时表示赢，若赢了，则在结束时，不能再落子
+        //初始化函数
+        function initAll() {
+            if (document.getElementById) {
+                document.getElementById("btn1").onclick = newStart;
+                document.getElementById("btn2").onclick = huiQi;
+                for (var i = 0; i < thObj.length; i++) {
+                    thObj[i].id = i;
+                    thObj[i].onmouseover = function () {
+                        this.style.backgroundColor = "#B58E1E";
+                    }
+                    thObj[i].onmouseout = function () {
+                        this.style.backgroundColor = "#EFCF73";
+                    }
+                    thObj[i].onclick = changePic;
+                }
+            }
+            else {
+                alert("Your brower not support this script");
+            }
+        }
+        //落子
+        function changePic() {
+            if (this.className == "" && sign == 1 && win == 0) {
+                this.className = "Baizi";
+                sign = 0;
+                record[top] = this.id;
+                top++;
+                if (isWin(this.id, "Baizi")) {
+                    alert("白子获胜");
+                    win = 1;
+                }
+            }
+            else if (this.className == "" && sign == 0 && win == 0) {
+                this.className = "Heizi";
+                sign = 1;
+                record[top] = this.id;
+                top++;
+                if (isWin(this.id, "Heizi")) {
+                    alert("黑子获胜");
+                    win = 1;
+                }
+            }
+        }
+        //判断输赢
+        function isWin(theId, color) {
+            if (row(theId, color)) return true;
+            else if (cow(theId, color)) return true;
+            else if (inclineOne(theId, color)) return true;
+            else if (inclineTwo(theId, color)) return true;
+            else return false;
+        }
+        //判断行输赢
+        function row(theId, color) {
+            var sum = 0;
+            var numOne = Math.floor(parseInt(theId) / 10);//在第几行
+            var numTwo = parseInt(theId) % 10 - 1;//在第几列
+            while (numTwo >= 0 && thObj[numTwo + numOne * 10].className == color) {
+                sum++;
+                numTwo--;
+            }
+            numOne = Math.floor(parseInt(theId) / 10);//在第几行
+            numTwo = parseInt(theId) % 10 + 1;//在第几列
+            while (numTwo < 10 && thObj[numTwo + numOne * 10].className == color) {
+                sum++;
+                numTwo++;
+            }
+            if (sum >= 4) return true;
+            return false;
+        }
+        //判断列输赢
+        function cow(theId, color) {
+            var sum = 0;
+            var num = parseInt(theId) - 10;
+            while (num >= 0 && thObj[num].className == color) {
+                sum++;
+                num -= 10;
+            }
+            num = parseInt(theId) + 10;
+            while (num < 100 && thObj[num].className == color) {
+                sum++;
+                num += 10;
+            }
+            if (sum >= 4) return true;
+            return false;
+        }
+        //判断向上斜输赢
+        function inclineOne(theId, color) {
+            var sum = 0;
+            theId = parseInt(theId)
+            var numOne = theId % 10 + 1;
+            var numTwo = theId - 9;
+            while (numOne < 10 && thObj[numTwo].className == color && numTwo >= 0) {
+                sum++;
+                numOne++;
+                numTwo -= 9;
+            }
+            numOne = theId % 10 - 1;
+            numTwo = theId + 9;
+            while (numOne >= 0 && thObj[numTwo].className == color && numTwo < 100) {
+                sum++;
+                numOne--;
+                numTwo += 9;
+            }
+            if (sum >= 4) return true;
+            return false;
+        }
+        //判断向下斜输赢
+        function inclineTwo(theId, color) {
+            var sum = 0;
+            theId = parseInt(theId)
+            var numOne = theId % 10 - 1;
+            var numTwo = theId - 11;
+            while (numOne >= 0 && thObj[numTwo].className == color && numTwo >= 0) {
+                sum++;
+                numOne--;
+                numTwo -= 11;
+            }
+            numOne = theId % 10 + 1;
+            numTwo = theId + 11;
+            while (numOne < 10 && thObj[numTwo].className == color && numTwo < 100) {
+                sum++;
+                numOne++;
+                numTwo += 11;
+            }
+            if (sum >= 4) return true;
+            return false;
+        }
+        //重新开始
+        function newStart() {
+            for (var i = 0; i < thObj.length; i++) {
+                thObj[i].className = "";
+            }
+            win = 0;
+            top = 0;
+            sign = 1;
+        }
+        //悔棋
+        function huiQi() {
+            if (top != 0 && win != 1) {
+                thObj[record[top]].className = "";
+                top--;
+                if (sign = 0) sign = 1;
+                else sign = 0;
+            }
+        }
+    </script>
+	<script src="js/music.js"></script>
+	</head>
+<body>
+	<div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div class="con">
+
+        <table>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+            <tr>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+            </tr>
+        </table>
+
+        <div id="footer">
+            <input class="left" type="button" id="btn1" value="重新开始" />
+            <input class="right" type="button" id="btn2" value="悔棋" />
+        </div>
+    </div>
+</body>
+</html>

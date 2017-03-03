@@ -1,0 +1,502 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <title>扫雷</title>
+    <style type="text/css">
+        body {
+            background: black;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #main {
+            background: #DBE2EC;
+            margin: 0px auto;
+            width: 625px;
+            height: 630px;
+        }
+
+        #con {
+            padding-top: 73px;
+            width: 470px;
+            padding-left: 73px;
+        }
+
+        .box {
+            width: 50px;
+            height: 50px;
+            background: url(images/slb.png);
+            float: left;
+            margin: 1px;
+            line-height: 50px;
+            font-size: 45px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #newGame {
+            margin: 10px auto;
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css" type="text/css">
+    <script type="text/javascript">
+        var bs = null;//存储雷的位置
+        var oBox = null;//div数组
+        var leis = null;//存储每个位置周边的雷数，除了雷区
+        var b = null;//判断每个方格是否翻开了
+        var nums;
+        window.onload = initAll;
+        function initAll() {//初始化
+            nums = new Array(10);//十个雷的位置
+            bs = new Array(81);
+            leis = new Array(81);
+            b = new Array(81);
+            document.getElementById("newGame").onclick = function () {
+                window.location.reload();
+            }
+            oBox = document.getElementsByClassName('box');
+            for (var i = 0; i < oBox.length; i++) {
+                oBox[i].id = i;//将每个div分别设置id
+                bs[i] = false;//没有雷的默认为false
+                b[i] = false;//没被翻开都为false
+            }
+            for (var i = 0; i < 10; i++) {
+                while (true) {//产生10个雷的位置
+                    nums[i] = Math.floor(Math.random() * 81);
+                    if (bs[nums[i]] == false) {//不重复
+                        bs[nums[i]] = true;
+                        break;
+                    }
+                }
+            }
+            for (var i = 0; i < oBox.length; i++) {
+                if (bs[i] != true) {
+                    leis[i] = returnNum(i);//当不在雷区就把那个位置的雷个数赋值
+                }
+                oBox[i].onclick = playGame;
+                oBox[i].oncontextmenu = function () {
+                    if (!this.style.backgroundImage) {
+                        this.style.backgroundImage = "url(images/slq.png)";
+                        b[this.id] = true;
+                    }
+                    else {
+                        this.style.backgroundImage = null;
+                        b[this.id] = false;
+                    }
+                    return false;
+                }
+            }
+        }
+        function playGame() {//开始游戏
+            if (bs[this.id] == true && b[this.id] == false) {
+                oBox[this.id].style.background = "url(images/sll.png)";
+                alert("恭喜你，中奖了");
+                alert("开始新游戏");
+				window.location.reload();
+            }
+            else if (b[this.id] != true) {
+                if (leis[this.id] == 0) {
+                    nullShow(this.id);
+                }
+                else {
+                    oBox[this.id].style.background = "url(images/slk.png)";
+                    oBox[this.id].innerHTML = leis[this.id];
+                    b[this.id] = true;
+                    changeColor();
+                }
+            }
+            if (check() == 1) {
+                alert("恭喜您赢了");
+            }
+        }
+        function exec(theId) {//判断新的id的位置
+            if (theId >= 0) {
+                if (theId < 81) {
+                    if (leis[theId] == 0) {
+                        if (b[theId] == false) {
+                            nullShow(theId);
+                        }
+                    }
+                    else if (leis[theId] == undefined) { }
+                    else {
+                        oBox[theId].style.background = "url(images/slk.png)";
+                        oBox[theId].innerHTML = leis[theId];
+                        b[theId] = true;
+                        changeColor();
+                    }
+                }
+            }
+        }
+        function nullShow(theId) {//递归
+            b[theId] = true;
+            oBox[theId].style.background = "url(images/slk.png)";
+            var newId;
+            if (theId == 0) {//左上角
+                newId = theId + 1;
+                exec(newId);
+                newId = theId + 10;
+                exec(newId);
+                newId = theId + 9;
+                exec(newId);
+            }
+            else if (theId == 8) {//右上角
+                newId = theId - 1;
+                exec(newId);
+                newId = theId + 8;
+                exec(newId);
+                newId = theId + 9;
+                exec(newId);
+            }
+            else if (theId == 72) {//左下角
+                newId = theId - 9;
+                exec(newId);
+                newId = theId - 8;
+                exec(newId);
+                newId = theId + 1;
+                exec(newId);
+            }
+            else if (theId == 80) {//右下角
+                newId = theId - 10;
+                exec(newId);
+                newId = theId - 9;
+                exec(newId);
+                newId = theId - 1;
+                exec(newId);
+            }
+            else if ((theId + 1) % 9 == 0) {//最右边位置
+                newId = theId - 10;
+                exec(newId);
+                newId = theId - 9;
+                exec(newId);
+                newId = theId - 1;
+                exec(newId);
+                newId = theId + 8;
+                exec(newId);
+                newId = theId + 9;
+                exec(newId);
+            }
+            else if (theId % 9 == 0) {//最左边一列
+                newId = theId - 9;
+                exec(newId);
+                newId = theId - 8;
+                exec(newId);
+                newId = theId + 1;
+                exec(newId);
+                newId = theId + 9;
+                exec(newId);
+                newId = theId + 10;
+                exec(newId);
+            }
+            else {
+                newId = theId - 10;
+                exec(newId);
+                newId = theId - 9;
+                exec(newId);
+                newId = theId - 8;
+                exec(newId);
+                newId = theId - 1;
+                exec(newId);
+                newId = theId + 1;
+                exec(newId);
+                newId = theId + 8;
+                exec(newId);
+                newId = theId + 9;
+                exec(newId);
+                newId = theId + 10;
+                exec(newId);
+            }
+        }
+        function changeColor() {//改变1234数字的颜色
+            for (var i = 0; i < oBox.length; i++) {
+                var str = oBox[i].innerHTML;
+                switch (str) {
+                    case "": break;
+                    case "1": oBox[i].style.color = '#4050BE';
+                        break;
+                    case "2": oBox[i].style.color = "#226703";
+                        break;
+                    case "3": oBox[i].style.color = "#AB0504";
+                        break;
+                    case "4": oBox[i].style.color = "#000180";
+                        break;
+                    case "5": oBox[i].style.color = "#AA157E";
+                        break;
+                    default: oBox[i].style.color = "#40BDBE";
+                        break;
+                }
+            }
+        }
+        function returnNum(theId) {//返回位置的雷个数
+            var count = 0;
+            var newId;
+            if (theId == 0) {
+                newId = theId + 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId + 9;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId + 10;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+            }
+
+            else if (theId == 8) {
+                newId = theId - 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId + 9;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId + 8;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+            }
+
+            else if (theId == 72) {
+                newId = theId + 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId - 9;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId - 8;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+            }
+
+            else if (theId == 80) {
+                newId = theId - 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId - 9;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                } newId = theId - 10;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+            }
+            else if ((theId + 1) % 9 == 0) {
+
+                for (var i = -10; i <= -9; i++) {
+                    newId = theId + i;
+                    if (document.getElementById(newId)) {
+                        if (bs[newId] == true) {
+                            count++;
+                        }
+                    }
+                }
+                newId = theId - 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+                for (var i = 8; i <= 9; i++) {
+                    newId = theId + i;
+                    if (document.getElementById(newId)) {
+                        if (bs[newId] == true) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            else if (theId % 9 == 0) {
+                for (var i = -9; i <= -8; i++) {
+                    newId = theId + i;
+                    if (document.getElementById(newId)) {
+                        if (bs[newId] == true) {
+                            count++;
+                        }
+                    }
+                }
+                newId = theId + 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+                for (var i = 9; i <= 10; i++) {
+                    newId = theId + i;
+                    if (document.getElementById(newId)) {
+                        if (bs[newId] == true) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            else {
+
+                for (var i = -10; i <= -8; i++) {
+                    newId = theId + i;
+                    if (document.getElementById(newId)) {
+                        if (bs[newId] == true) {
+                            count++;
+                        }
+                    }
+                }
+                newId = theId + 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+                newId = theId - 1;
+                if (document.getElementById(newId)) {
+                    if (bs[newId] == true) {
+                        count++;
+                    }
+                }
+                for (var i = 8; i <= 10; i++) {
+                    newId = theId + i;
+                    if (document.getElementById(newId)) {
+                        if (bs[newId] == true) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            return count;
+        }
+        function check() {//判断雷是否全部找到
+            for (var i = 0; i < 81; i++) {
+                if (bs[i] == false) {//没有雷的地方
+                    if (b[i] == false) {//有一个没被翻开了
+                        return 0;
+                    }
+                }
+            }
+            return 1;
+        }
+    </script>
+</head>
+<body>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div id="main">
+        <div id="con">
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <div class='box'></div>
+            <input type="button" id="newGame" value="重新开始">
+        </div>
+    </div>
+</body>
+</html>

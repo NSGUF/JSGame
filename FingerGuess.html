@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>猜拳小游戏</title>
+    <style type="text/css">
+        body {
+            background: #715E3D;
+            margin: 0px;
+            padding: 0px;
+        }
+		
+        #main {
+            background: #F7D18D;
+            margin: 0px auto;
+            width: 625px;
+            height: 630px;
+        }
+
+        #cpt {
+            margin: 0px auto;
+            width: 256px;
+        }
+
+        h2 {
+            margin: 0px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        #cptimg {
+            width: 256px;
+            height: 256px;
+            background: url(images/8.png);
+        }
+        .cpter {
+            width: 256px;
+            height: 256px;
+            display:block;
+            background-repeat: no-repeat;
+        }
+        #player {
+            margin: 10px auto;
+            width: 600px;
+            height: 200px;
+        }
+
+        .jsb {
+            float: left;
+            width: 130px;
+            height: 130px;
+            margin-left: 50px;
+            cursor:pointer;
+        }
+
+        #player1 {
+            background: url(images/cqs.png);
+        }
+
+        #player2 {
+            background: url(images/cqj.png);
+        }
+
+        #player3 {
+            background: url(images/cqb.png);
+        }
+        #scoreI ,#newGame{
+            margin-top:0px;
+            margin-left: 50px;
+            float:left;
+            background:#715E3D;
+        }
+        #newGame {
+            height:30px;
+            cursor:pointer;
+            font-size:20px;
+        }
+		
+        .scoreC {
+        text-align:center;
+        width:150px;
+        height:30px;
+        font-size:20px;
+        }
+    </style>
+     <link rel="stylesheet" href="css/nav.css" type="text/css">
+    <script type="text/javascript">
+        var time;
+        var oCpt;
+        var cptChu;
+        var playerChu;
+        var cptWin;
+        var playerWin;
+        var oScore;
+        window.onload = init;
+        function init() {
+            cptWin = 0;
+            playerWin = 0;
+            oCpt = document.getElementById('cptimg');
+            oCpt.id = "cptimg";
+            var oJsb = document.getElementsByClassName("jsb");
+            oScore = document.getElementsByClassName('scoreC');
+            for (var i = 0; i < oJsb.length; i++) {
+                oJsb[i].onclick = playGame(i);
+            }
+            var oNewGame = document.getElementById('newGame');
+            oNewGame.onmouseover = function () {
+                this.style.backgroundColor = "#BD814B";
+            }
+            oNewGame.onmouseout = function () {
+                this.style.backgroundColor = "#715E3D";
+            }
+            oNewGame.onclick = function () {
+                    //oScore[1].innerHTML = "玩家得分：0";
+                    //oScore[0].innerHTML = "电脑得分：0";
+                //init();
+                window.location.reload();
+            }
+        }
+        function playGame(i) {//出拳开始游戏
+            return function () {
+                playerChu = i + 1;
+                time = 0;
+                cptChu = Math.floor(Math.random() * 3) + 1;
+                computerChangePic();
+            }
+        }
+        function computerChangePic() {//电脑出的时候，图片转动并出拳
+            time++;
+            var j = time % 3+1;
+            oCpt.id = "player" + j;
+            oCpt.className = "cpter";
+            if (time < (8 + cptChu)) {
+                var clear = setTimeout(computerChangePic, 100);
+            }
+            else {
+                caiPan();
+            }
+        }
+        function caiPan() {//计算赢的次数
+            if (playerChu - cptChu == -1 || playerChu - cptChu == 2) {
+                playerWin++;
+                oScore[1].innerHTML = "玩家得分：" + playerWin;
+                alert("玩家赢!");
+            }
+            else if (playerChu - cptChu == 0) {
+                alert("平手！");
+            }
+            else {
+                cptWin++;
+                oScore[0].innerHTML = "电脑得分：" +cptWin;
+                alert("电脑赢!");
+            }
+        }
+    </script>
+	<script src="js/music.js"></script>
+	</head>
+<body>
+	<div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div id="main">
+        <div id="cpt">
+            <h2>电脑出：</h2>
+            <div id="cptimg" class="cpter">
+            </div>
+        </div>
+        <div id="player">
+            <h2>玩家出：</h2>
+            <div id="player1" class="jsb">
+            </div>
+            <div id="player2" class="jsb">
+            </div>
+            <div id="player3" class="jsb">
+            </div>
+        </div>
+        <div id="scoreI">
+            <div class="scoreC">电脑得分：0</div>
+            <div class="scoreC">玩家得分：0</div>
+        </div> 
+        <div id="newGame">重新开始</div>
+    </div>
+</body>
+</html>

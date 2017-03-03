@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>打地鼠</title>
+    <style type="text/css">
+        body {
+            background: #C5DD4B;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #main {
+            background: #85B101;
+            margin: 0px auto;
+            width: 625px;
+            height: 630px;
+        }
+
+        #con {
+            padding-top: 100px;
+            width: 320px;
+            padding-left: 150px;
+        }
+
+        .box {
+            width: 60px;
+            height: 60px;
+            background: url(images/ddsbg.jpg);
+            float: left;
+            margin: 1px;
+            line-height: 50px;
+            font-size: 45px;
+            text-align: center;
+        }
+
+            .box:hover {
+                cursor: pointer;
+            }
+
+        #newGame {
+            margin: 30px 50px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css" type="text/css" />
+    <script type="text/javascript">
+        var score = 0;//得分
+        var time = 60;//时间 3只是测试用的 不至于真的等60秒
+        var i;//老鼠随机的出来的位置
+        var oBox = null;//方格的对象数组
+        var clear1, clear2, clear3;//间隔setTimeOut的返回值
+        window.onload = initAll;
+        function initAll() {
+            oBox = document.getElementsByClassName("box");//返回div数组
+            for (var i = 0; i < oBox.length; i++) {
+                oBox[i].id = i;
+                oBox[i].setAttributeNode(document.createAttribute("test"));    //为每个方格添加test属性
+                oBox[i].setAttribute("test", "false");    //为每个方格设置test属性为false      
+                oBox[i].onclick = daMouse;
+            }
+            newGame();//开始新的游戏
+            stopGame();
+            //mouseMove();//老鼠移动
+        }
+        function daMouse() {
+            if (this.id == i) {//当点击到老鼠在的位置时
+                if (this.getAttribute("test") == "false") {   //如果它的test属性为false时，则为打中
+                    document.getElementById(this.id).style.background = "url(images/ddsfm.jpg)";
+                    this.setAttribute("test", "true");
+                    score += 10;
+                    document.getElementById('s').innerHTML = score;
+                    clearTimeout(clear1);
+                    setTimeout(mouseMove, 900);
+                }
+            }
+        }
+        function mouseMove() {//老鼠移动
+            i = Math.floor(Math.random() * 25);
+            for (var j = 0; j < 25; j++) {
+                document.getElementById(j).style.background = "url(images/ddsbg.jpg)";
+                document.getElementById(j).setAttribute("test", "false");
+            }
+            document.getElementById(i).style.background = "url(images/ddsm.jpg)";
+            if (time <= 0) {
+                for (var j = 0; j < 25; j++) {
+                    oBox[j].setAttribute("test", "true");
+                }
+                alert("您的得分为" + score);
+            }
+            if (time > 0) {
+                clear1 = setTimeout(mouseMove, 900);
+            }
+        }
+        function newGame() {   //重新开始
+            document.getElementById("newGame").onclick = function () {
+                window.location.reload();
+            };
+        }
+        function stopGame() {
+            var stopBtn = document.getElementById('stop').onclick = function () {
+                if (this.value == "暂停游戏") {
+                    clearTimeout(clear1);
+                    clearTimeout(clear2);
+                    clearTimeout(clear3);
+                    this.value = "开始游戏";
+                }
+                else {
+                    timeShow();//计时器
+                    mouseMove();//老鼠移动
+                    this.value = "暂停游戏";
+                }
+            }
+        }
+        function timeShow() {
+            time--;//时间减一
+            document.getElementById('t').innerHTML = time;//显示
+            if (time > 0) {
+                clear3 = setTimeout(timeShow, 1000);
+            }
+        }
+    </script>
+    <script src="js/music.js"></script>
+</head>
+<body>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div id="main">
+        <div id="con">
+            <script type="text/javascript">
+                var con = document.getElementById("con");
+                for (var i = 1; i <= 25; i++) {
+                    var d = document.createElement("div");
+                    d.setAttribute("class", "box");
+                    con.appendChild(d);
+                }
+            </script>
+            <div>倒计时：<span id="t">60</span>s得分：<span id="s">0</span>分</div>
+            <input type="button" id="newGame" value="重新开始" />
+            <input type="button" id="stop" value="开始游戏" />
+        </div>
+    </div>
+</body>
+</html>

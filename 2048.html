@@ -1,0 +1,389 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>2048小游戏</title>
+    <style type="text/css">
+	body{
+	margin:0px;
+	padding:0px;
+	}
+        #main {
+            width: 500px;
+            height: 600px;
+            background-color: #f0f0f0;
+            margin: auto;
+        }
+        .box {
+            font-size: 40px;
+            text-align: center;
+            width: 100px;
+            height: 100px;
+            float: left;
+            background-color: #CDC2B3;
+            position: relative;
+            margin-left: 18px;
+            margin-top: 18px;
+            line-height: 100px;
+        }
+
+        #rule {
+            font-size: 24px;
+            width: 500px;
+            height: 50px;
+            line-height: 50px;
+            float: left;
+            margin-top: 10px;
+            margin-left: 18px;
+        }
+
+        #left {
+            font-size: 24px;
+            line-height: 33px;
+            text-align: center;
+            height: 70px;
+            width: 150px;
+            background-color: #BBAF9A;
+            float: left;
+            margin-left: 18px;
+            margin-top: 10px;
+        }
+
+        #center {
+            width: 125px;
+            height: 70px;
+            margin-top: 10px;
+            line-height: 70px;
+            float: left;
+            margin-left: 43px;
+        }
+
+        #right {
+            font-size: 24px;
+            line-height: 33px;
+            text-align: center;
+            float: right;
+            height: 70px;
+            width: 150px;
+            background-color: #BBAF9A;
+            margin-left: 10px;
+            margin-top: 8px;
+        }
+
+        #footer {
+            width: 500px;
+            height: 170px;
+        }
+		a:hover { 
+		font-size: 14pt; 
+		text-decoration:underline; 
+		color: blue; 
+		}
+    </style>
+    <link rel="stylesheet" href="css/nav.css" type="text/css">
+    <script type="text/javascript">
+        var score = 0;//分数
+        var highscore = 0;//最高分
+        var isContinue = true;
+        var bg = null;
+        var oBox = null;//元素
+        var oList = null;
+        var isNeedNew = false;//是否需要新生成数字
+		window.onload = function () {
+            oBox = document.getElementsByTagName('div');
+            var oBt = document.getElementById('btn');
+            initGame();
+            paintGame();
+            oBt.onclick = function () {
+                initGame();
+                paintGame();
+            };
+            document.onkeydown = function (ev) {
+                var oE = ev || event;
+                if (oE.keyCode == 38 && isContinue == true) {
+                    moveBox(1);
+                    paintGame();
+                    checkIsContinue();
+                }
+                if (oE.keyCode == 37 && isContinue == true) {
+                    moveBox(2);
+                    paintGame();
+                    checkIsContinue();
+                }
+                if (oE.keyCode == 40 && isContinue == true) {
+                    moveBox(3);
+                    paintGame();
+                    checkIsContinue();
+                }
+                if (oE.keyCode == 39 && isContinue == true) {
+                    moveBox(4);
+                    paintGame();
+                    checkIsContinue();
+                }
+            };
+        };
+        function moveBox(goA) {//移动方块
+            isNeedNew = false;//默认不需要重新生成数字
+            oList = new Array();
+            var i = 0, m, n;
+            for (m = 0; m < 4; m++) {
+                for (i = 0; i < 4; i++)
+                    oList[i] = 0;
+                if (goA == 1) {//向上
+                    i = 0;
+                    for (n = 0; n < 4; n++) {
+                        if (bg[n][m] != 0) {
+                            oList[i] = bg[n][m];
+                            i++;
+                        }
+                    }
+                    for (n = 0; n < 4; n++) {
+                        if (bg[n][m] != oList[n]) {
+                            isNeedNew = true;
+                        }
+                        bg[n][m] = 0;
+                    }
+                    removeBox();
+                    n = 0;
+                    for (i = 0; i < 4; i++) {
+                        if (oList[i] != 0) {
+                            bg[n][m] = oList[i];
+                            n++;
+                        }
+                    }
+                } else if (goA == 2) {//向左
+                    i = 0;
+                    for (n = 0; n < 4; n++) {
+                        if (bg[m][n] != 0) {
+                            oList[i] = bg[m][n];
+                            i++
+                        }
+                    }
+                    for (n = 0; n < 4; n++) {
+                        if (bg[m][n] != oList[n]) {
+                            isNeedNew = true;
+                        }
+                        bg[m][n] = 0;
+                    }
+                    removeBox();
+                    n = 0;
+                    for (i = 0; i < 4; i++) {
+                        if (oList[i] != 0) {
+                            bg[m][n] = oList[i];
+                            n++;
+                        }
+                    }
+                } else if (goA == 3) {//向下
+                    i = 0;
+                    for (n = 3; n >= 0; n--) {
+                        if (bg[n][m] != 0) {
+                            oList[i] = bg[n][m];
+                            i++;
+                        }
+                    }
+                    for (n = 0; n < 4; n++) {
+                        if (bg[n][m] != oList[3 - n]) {
+                            isNeedNew = true;
+                        }
+                        bg[n][m] = 0;
+                    }
+                    removeBox();
+                    n = 3;
+                    for (i = 0; i < 4; i++) {
+                        if (oList[i] != 0) {
+                            bg[n][m] = oList[i];
+                            n--;
+                        }
+                    }
+                } else if (goA == 4) {
+                    i = 0;
+                    for (n = 3; n >= 0; n--) {
+                        if (bg[m][n] != 0) {
+                            oList[i] = bg[m][n];
+                            i++
+                        }
+                    }
+                    for (n = 0; n < 4; n++) {
+                        if (bg[m][n] != oList[3 - n]) {
+                            isNeedNew = true;
+                        }
+                        bg[m][n] = 0;
+                    }
+                    removeBox();
+                    n = 3;
+                    for (i = 0; i < 4; i++) {
+                        if (oList[i] != 0) {
+                            bg[m][n] = oList[i];
+                            n--;
+                        }
+                    }
+                }
+            }
+            if (isNeedNew == true) {
+                newNum();
+            }
+        }
+        function removeBox() {//消除方块
+            var i;
+            for (i = 0; i < 3; i++) {
+                if (oList[i] != 0 && oList[i] == oList[i + 1]) {
+                    isNeedNew = true;
+                    oList[i] *= 2;
+                    score += oList[i];
+                    oList[i + 1] = 0;
+                    i++;
+                }
+            }
+            if (score > highscore) {
+                highscore = score;
+            }
+        }
+        function initGame() {//游戏初始化
+            var m, n;
+            //初始化数组
+            bg = new Array();
+            for (m = 0; m < 4; m++) {
+                bg[m] = new Array();
+                for (n = 0; n < 4; n++) {
+                    bg[m][n] = 0;
+                }
+            }
+            newNum();
+            newNum();
+            //初始化得分
+            score = 0;
+            //初始化游戏是否可以继续
+            isContinue = true;
+        }
+        function paintGame() {//游戏绘图
+            var m, n, i, str = "";
+            oBox = document.getElementsByTagName('div');
+            for (m = 0; m < 4; m++) {
+                for (n = 0; n < 4; n++) {
+                    i = m * 4 + n + 1+1;//改了
+                    if (bg[m][n] == 0)
+                        oBox[i].innerHTML = "";
+                    else
+                        oBox[i].innerHTML = bg[m][n] + "";
+                    switch (bg[m][n]) {
+                        case 0: str = "#CDC2B3"; break;
+                        case 2: str = "#EEE5D9"; break;
+                        case 4: str = "#ECE1C6"; break;
+                        case 8: str = "#F0B378"; break;
+                        case 16: str = "#F49760"; break;
+                        case 32: str = "#E37E5F"; break;
+                        case 64: str = "#EC5F42"; break;
+                        case 128: str = "#F1DB69"; break;
+                        case 256: str = "#F1D14B"; break;
+                        case 512: str = "#EDC850"; break;
+                        case 1024: str = "#EDCE68"; break;
+                        case 2048: str = "#EDD893"; break;
+                        default: str = "#EDE0B7";
+                    }
+                    oBox[i].style.background = str;
+                }
+            }
+			document.getElementById('left').innerHTML="得分<br />"+score;
+			document.getElementById('right').innerHTML="最高分<br />"+highscore;
+        }
+        function newNum() {//随机生成数
+            var m, n;
+            do {
+                m = Math.floor(Math.random() * 4);
+                n = Math.floor(Math.random() * 4);
+            } while (bg[m][n] != 0);
+            var k;
+            k = Math.floor(Math.random() * 10);
+            if (k < 7 && bg[m][n] == 0) {
+                bg[m][n] = 2;
+            } else {
+                bg[m][n] = 4;
+            }
+        }
+        function checkIsContinue() {//检查游戏是否可以继续
+            var i, j;
+            for (i = 0; i < 4; i++) {
+                for (j = 0; j < 4; j++) {
+                    if (bg[i][j] == 2048) {
+                        isContinue = false;
+                        alert("恭喜您赢了，您的最终得分:" + score + "分");
+                    }
+                }
+            }
+            for (i = 0; i < 4; i++) {
+                for (j = 0; j < 4; j++) {
+                    if (bg[i][j] == 0) {
+                        isContinue = true;
+                        return;
+                    }
+                }
+            }
+            isContinue = false;
+            for (i = 0; i < 4; i++) {
+                for (j = 0; j < 4; j++) {
+                    if (i + 1 < 4) {
+                        if (bg[i][j] == bg[i + 1][j]) {
+                            isContinue = true;
+                            return;
+                        }
+                    }
+                    if (j + 1 < 4) {
+                        if (bg[i][j] == bg[i][j + 1]) {
+                            isContinue = true;
+                            return;
+                        }
+                    }
+                }
+            }
+            alert("您输了，最终得分:" + score + "分");
+        }
+        </script>
+	<script src="js/music.js"></script>
+		</head>
+<body>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div id="main">
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div class="box"></div>
+        <div id="rule">请按上下左右键来控制游戏！</div>
+        <div id="footer">
+            <div id="left">
+                得分<br />
+                0
+            </div>
+            <div id="center">
+                <input type="button" id="btn" value="重新开始" /><br>
+            </div>
+            <div id="right">
+                最高分<br />0
+            </div>
+        </div>
+    </div>
+</body>
+</html>

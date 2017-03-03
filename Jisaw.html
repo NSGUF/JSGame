@@ -1,0 +1,406 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <title>拼图小游戏</title>
+    <style type="text/css">
+        body {
+            margin: 0px;
+            padding: 0px;
+            background-color: #E1C392;
+        }
+
+        #main {
+            width: 500px;
+            height: 600px;
+            background-color: #f0f0f0;
+            margin: 0px auto;
+            padding-top: 30px;
+        }
+
+        #con {
+            margin: 0px auto;
+            width: 354px;
+            height: 354px;
+        }
+
+        .box {
+            width: 118px;
+            height: 118px;
+            float: left;
+            background-repeat: no-repeat;
+        }
+
+        #rule {
+            font-size: 24px;
+            width: 500px;
+            height: 50px;
+            line-height: 50px;
+            float: left;
+            margin-top: 10px;
+            margin-left: 18px;
+        }
+
+        #left {
+            font-size: 24px;
+            line-height: 33px;
+            text-align: center;
+            height: 70px;
+            width: 150px;
+            background-color: #BBAF9A;
+            float: left;
+            margin-left: 18px;
+            margin-top: 10px;
+        }
+
+        #center {
+            width: 125px;
+            height: 70px;
+            margin-top: 10px;
+            line-height: 70px;
+            float: left;
+            margin-left: 43px;
+        }
+
+        #right {
+            font-size: 24px;
+            line-height: 33px;
+            text-align: center;
+            float: right;
+            height: 70px;
+            width: 150px;
+            background-color: #BBAF9A;
+            margin-left: 10px;
+            margin-top: 8px;
+        }
+
+        #footer {
+            width: 500px;
+            height: 170px;
+        }
+
+        #bg0 {
+            background: url(images/pin1.png);
+        }
+
+        #bg1 {
+            background: url(images/pin2.png);
+        }
+
+        #bg2 {
+            background: url(images/pin3.png);
+        }
+
+        #bg3 {
+            background: url(images/pin4.png);
+        }
+
+        #bg4 {
+            background: url(images/pin5.png);
+        }
+
+        #bg5 {
+            background: url(images/pin6.png);
+        }
+
+        #bg6 {
+            background: url(images/pin7.png);
+        }
+
+        #bg7 {
+            background: url(images/pin8.png);
+        }
+
+        #bg9 {
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css" type="text/css">
+    <script src="js/music.js"></script>
+    <script type="text/javascript">
+        var oBox = null;//方格组
+        var ranA = null;//不重复的0-8的数组
+        var time = null;//所用时间
+        var bestTime = null;//最低时间
+        var clear=null;//时间
+        window.onload = playGame;
+        function playGame() {//游戏开始
+            time = 60;
+            ranArray();
+            oBox = document.getElementsByClassName('box');
+            for (var i = 0; i < oBox.length; i++) {
+                if (i == 8) {
+                    oBox[i].id = "bg9";
+                }
+                else {
+                    oBox[i].id = "bg" + ranA[i];
+                }
+            }
+            document.onkeydown = function (e) {//设置移动方向
+                var oE = e || event;
+                var moveDir;//方向
+                switch (oE.keyCode) {
+                    case 37:
+                        moveDir = "left";
+                        break;
+                    case 38:
+                        moveDir = "up";
+                        break;
+                    case 39:
+                        moveDir = "right";
+                        break;
+                    case 40:
+                        moveDir = "down";
+                        break;
+                }
+                if (document.getElementById("playGame").value != "开始游戏") {
+                    move(moveDir);
+                    gameOver();
+                }
+            }
+            newGame();
+            stopGame();
+        }
+        function stopGame() {
+            document.getElementById('playGame').onclick = function () {
+                if (this.value == "暂停游戏") {
+                    clearTimeout(clear);
+                    this.value = "开始游戏";
+                }
+                else {
+                    countTime();
+                    this.value = "暂停游戏";
+                }
+            }
+        }
+        function gameOver() {//游戏结束要做的事
+            if (checkGameOver() == 1) {
+                if (bestTime == null) {
+                    bestTime = time;
+                }
+                else {
+                    if (bestTime > time) {
+                        bestTime = time;
+                    }
+                }
+                document.getElementById('right').innerHTML = "最高纪录：<br />" + bestTime + "秒";
+                alert("恭喜您过关！");
+            }
+        }
+        function newGame() {//点击新游戏
+            document.getElementById("btn").onclick = function () {
+                alert("新游戏开始，请准备");
+                reStart();
+            }
+        }
+        function checkGameOver() {//判断游戏结束
+            for (var i = 0; i < oBox.length - 1; i++) {
+                if (oBox[i].id != "bg" + i) {
+                    return 0;
+                }
+            }
+            return 1;
+        }
+        function ranArray() {//创建一个不重复的随机0-8的数组
+            ranA = new Array();
+            while (ranA.length < 8) {
+                var num = Math.floor(Math.random() * 8);
+                if (isContain(ranA, num) == 1) {
+                    ranA.push(num);
+                }
+            }
+        }
+        function isContain(arr, num) {//判断数组中是否有这个数
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] == num) {
+                    return 0;
+                }
+            }
+            return 1;
+        }
+        function move(moveDir) {//移动方块
+            for (var i = 0; i < oBox.length; i++) {
+                if (oBox[i].id == "bg9" && i == 0) {
+                    if (moveDir == "left") {
+                        oBox[i].id = oBox[i + 1].id;
+                        oBox[i + 1].id = "bg9";
+                    }
+                    if (moveDir == "up") {
+                        oBox[i].id = oBox[i + 3].id;
+                        oBox[i + 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 1) {
+                    if (moveDir == "left") {
+                        oBox[i].id = oBox[i + 1].id;
+                        oBox[i + 1].id = "bg9";
+                    }
+                    if (moveDir == "right") {
+                        oBox[i].id = oBox[i - 1].id;
+                        oBox[i - 1].id = "bg9";
+                    }
+                    if (moveDir == "up") {
+                        oBox[i].id = oBox[i + 3].id;
+                        oBox[i + 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 2) {
+                    if (moveDir == "right") {
+                        oBox[i].id = oBox[i - 1].id;
+                        oBox[i - 1].id = "bg9";
+                    }
+                    if (moveDir == "up") {
+                        oBox[i].id = oBox[i + 3].id;
+                        oBox[i + 3].id = "bg9";
+                    }
+                    return;
+                }
+
+                if (oBox[i].id == "bg9" && i == 4) {
+                    if (moveDir == "left") {
+                        oBox[i].id = oBox[i + 1].id;
+                        oBox[i + 1].id = "bg9";
+                    }
+                    if (moveDir == "right") {
+                        oBox[i].id = oBox[i - 1].id;
+                        oBox[i - 1].id = "bg9";
+                    }
+                    if (moveDir == "up") {
+                        oBox[i].id = oBox[i + 3].id;
+                        oBox[i + 3].id = "bg9";
+                    }
+                    if (moveDir == "down") {
+                        oBox[i].id = oBox[i - 3].id;
+                        oBox[i - 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 3) {
+                    if (moveDir == "left") {
+                        oBox[i].id = oBox[i + 1].id;
+                        oBox[i + 1].id = "bg9";
+                    }
+                    if (moveDir == "up") {
+                        oBox[i].id = oBox[i + 3].id;
+                        oBox[i + 3].id = "bg9";
+                    }
+                    if (moveDir == "down") {
+                        oBox[i].id = oBox[i - 3].id;
+                        oBox[i - 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 5) {
+                    if (moveDir == "right") {
+                        oBox[i].id = oBox[i - 1].id;
+                        oBox[i - 1].id = "bg9";
+                    }
+                    if (moveDir == "up") {
+                        oBox[i].id = oBox[i + 3].id;
+                        oBox[i + 3].id = "bg9";
+                    }
+                    if (moveDir == "down") {
+                        oBox[i].id = oBox[i - 3].id;
+                        oBox[i - 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 6) {
+                    if (moveDir == "left") {
+                        oBox[i].id = oBox[i + 1].id;
+                        oBox[i + 1].id = "bg9";
+                    }
+                    if (moveDir == "down") {
+                        oBox[i].id = oBox[i - 3].id;
+                        oBox[i - 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 7) {
+                    if (moveDir == "left") {
+                        oBox[i].id = oBox[i + 1].id;
+                        oBox[i + 1].id = "bg9";
+                    }
+                    if (moveDir == "right") {
+                        oBox[i].id = oBox[i - 1].id;
+                        oBox[i - 1].id = "bg9";
+                    }
+                    if (moveDir == "down") {
+                        oBox[i].id = oBox[i - 3].id;
+                        oBox[i - 3].id = "bg9";
+                    }
+                    return;
+                }
+                if (oBox[i].id == "bg9" && i == 8) {
+                    if (moveDir == "right") {
+                        oBox[i].id = oBox[i - 1].id;
+                        oBox[i - 1].id = "bg9";
+                    }
+                    if (moveDir == "down") {
+                        oBox[i].id = oBox[i - 3].id;
+                        oBox[i - 3].id = "bg9";
+                    }
+                    return;
+                }
+            }
+        }
+        function countTime() {//计时
+            time--;
+            document.getElementById("left").innerHTML = "所剩时间：<br/>" + time + "秒";
+            if (time > 0) {
+                clear = setTimeout(countTime, 1000);
+            }
+            else {
+                alert("时间到！,不好意思，你失败了！");
+                clearTimeout(clear);
+            }
+        }
+        function reStart() {//重新开始
+            window.location.reload();
+        }
+    </script>
+</head>
+<body>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div id="main">
+        <div id="con">
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </div>
+        <div id="rule">请按上下左右键来控制游戏！</div>
+        <div id="footer">
+            <div id="left">
+                所剩时间：<br />
+                60秒
+            </div>
+            <div id="center">
+                <input type="button" id="btn" value="重新开始" />
+                <input type="button" id="playGame" value="开始游戏" />
+            </div>
+            <div id="right">
+                最高纪录：<br />
+                无
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>猜数字小游戏</title>
+    <style>
+        body {
+            background: #9CE0CF;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .con {
+            width: 600px;
+            height: 590px;
+            margin: 0px auto;
+            background: #E1D8D8;
+            padding: 20px;
+        }
+
+        #main {
+            margin-left: 50px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css" type="text/css">
+    <script type="text/javascript">
+        var n;
+        var oTip;
+        var ranNum;
+        window.onload = init;
+        function init() {
+            n = 0;//猜的次数初始化为0
+            oTip = document.getElementById('tip');//提示对象
+            ranNum = Math.floor(Math.random() * 101);//产生的随机数
+            var oSub = document.getElementById('sub');//提交对象
+            document.onkeydown = function (evt) {//方框里只能输入数字和左右键和删除键
+                var e = evt || event;
+                if ((e.keyCode < 48 || e.keyCode > 57) && e.keyCode != 13 && e.keyCode != 8 && e.keyCode != 37 && e.keyCode != 39) {
+                    return false;
+                }
+                if (e.keyCode == 13) {
+                    playGame();
+                }
+            }
+            oSub.onclick = playGame;
+            document.getElementById("newGame").onclick = reStart;
+        }
+        function playGame() {
+            var num = document.getElementById('txt').value;
+			if(num>100||num<0||num==""){
+			
+			alert("请输入0-100的数!");
+			}
+			else{
+            n++;
+            if (ranNum > num) {
+                oTip.innerHTML = oTip.innerHTML + "<br/>"+num+"猜小了，猜了" + n + "次！";
+            }
+            else if (ranNum < num) {
+                oTip.innerHTML = oTip.innerHTML + "<br/>"+num+"猜大了，猜了" + n + "次！";
+            }
+            else {
+                oTip.innerHTML = oTip.innerHTML + "<br/>恭喜你，猜对了!一共猜了" + n + "次！";
+                reStart();
+            }
+            if (n >= 10) {
+                alert("10次机会到了，再来一局吧！");
+                reStart();
+            }
+        }
+            document.getElementById('txt').value = "";
+		}
+        function reStart() {
+            alert("新游戏开始，请准备");
+            n = 0;
+            oTip.innerHTML = "";
+            document.getElementById('txt').value = "";
+            init();
+        }
+    </script>
+	<script src="js/music.js"></script>
+	</head>
+<body>
+    <div class="nav">
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="Gobang.html">五子棋</a></li>
+            <li><a href="2048.html">2048</a></li>
+            <li><a href="NumberGuess.html">猜数字</a></li>
+            <li><a href="MineSweep.html">扫雷</a></li>
+            <li><a href="Snake.html">贪吃蛇</a></li>
+            <li><a href="WhacAMole.html">打地鼠</a></li>
+            <li><a href="Jisaw.html">拼图</a></li>
+            <li><a href="FingerGuess.html">猜拳</a></li>
+        </ul>
+    </div>
+    <div class="con">
+        <div id="main">
+            <div id="header">
+                <h2>猜数字游戏！0-100哦！</h2>
+                <h3>你有10次机会，并且会有提示。</h3>
+                <input type="text" id="txt" value="" />
+                <input type="button" id="sub" value="提交" />
+                <input type="button" id="newGame" value="重新开始" />
+            </div>
+            <div id="tip">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
