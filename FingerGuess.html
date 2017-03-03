@@ -139,17 +139,17 @@
         }
         function caiPan() {//计算赢的次数
             if (playerChu - cptChu == -1 || playerChu - cptChu == 2) {
-                playerWin++;
-                oScore[1].innerHTML = "玩家得分：" + playerWin;
-                alert("玩家赢!");
+				alert("平手！!");
             }
             else if (playerChu - cptChu == 0) {
-                alert("平手！");
+				cptWin++;
+                oScore[0].innerHTML = "电脑得分：" +cptWin;
+				alert("电脑赢!!");
             }
             else {
-                cptWin++;
-                oScore[0].innerHTML = "电脑得分：" +cptWin;
-                alert("电脑赢!");
+				playerWin++;
+                oScore[1].innerHTML = "玩家得分：" + playerWin;
+                alert("玩家赢!");
             }
         }
     </script>
